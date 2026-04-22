@@ -8,7 +8,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class FrontController extends AbstractController
 {
-    #[Route('/', name: 'app_index')]
+    #[Route('/{vueRouting}', name: 'app_index', requirements: ['vueRouting' => '^(?!api|_wdt|_profiler).*$'], defaults: ['vueRouting' => null])]
     public function index(): Response
     {
         return $this->render('index.html.twig');

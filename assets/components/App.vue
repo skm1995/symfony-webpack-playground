@@ -2,20 +2,24 @@
   <div class="app">
     <header>
       <h1>Vue 3 + TypeScript + Symfony</h1>
+      <nav>
+        <RouterLink
+          to="/"
+          exact-active-class="active"
+        >
+          Home
+        </RouterLink>
+        <RouterLink
+          to="/about"
+          exact-active-class="active"
+        >
+          About
+        </RouterLink>
+      </nav>
     </header>
     
     <main>
-      <HelloWorld 
-        msg="Welcome to your Vue 3 + TypeScript app!" 
-        @update-message="handleMessageUpdate"
-      />
-      
-      <Counter :initial-count="5" />
-      
-      <UserList
-        :users="users"
-        @select-user="handleUserSelect"
-      />
+      <RouterView />
     </main>
     
     <footer>
@@ -25,25 +29,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import HelloWorld from './HelloWorld.vue';
-import Counter from './Counter.vue';
-import UserList from './UserList.vue';
-import type { User } from '../types';
-
-const users = ref<User[]>([
-  { id: 1, name: 'John Doe', email: 'john@example.com', role: 'admin' },
-  { id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'user' },
-  { id: 3, name: 'Bob Johnson', email: 'bob@example.com', role: 'user' },
-]);
-
-const handleMessageUpdate = (newMessage: string): void => {
-  console.log('Message updated:', newMessage);
-};
-
-const handleUserSelect = (user: User): void => {
-  console.log('Selected user:', user.name);
-};
+// Root component - routing handled by Vue Router
 </script>
 
 <style scoped lang="scss">
@@ -61,7 +47,30 @@ header {
   h1 {
     color: #42b883;
     font-size: 2.5rem;
-    margin: 0;
+    margin: 0 0 1rem;
+  }
+  
+  nav {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    
+    a {
+      color: #35495e;
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      transition: background-color 0.2s;
+      
+      &:hover {
+        background-color: #f0f0f0;
+      }
+      
+      &.active {
+        background-color: #42b883;
+        color: white;
+      }
+    }
   }
 }
 

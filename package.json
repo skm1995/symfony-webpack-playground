@@ -16,6 +16,7 @@
         "ts-loader": "^9.5.7",
         "typescript": "^5.0.0",
         "vue": "^3.5.33",
+        "vue-router": "^4.0.0",
         "vue-loader": "^17.4.2",
         "webpack": "^5.72",
         "webpack-cli": "^6.0.0",
