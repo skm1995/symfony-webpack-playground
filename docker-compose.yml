@@ -1,0 +1,72 @@
+services:
+  php:
+    build:
+      dockerfile: ./docker/php/Dockerfile
+    container_name: php
+    volumes:
+      - .:/var/www/html
+      - ./docker/php/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
+    working_dir: /var/www/html
+    environment:
+      DATABASE_URL: mysql://${DATABASE_USER:-user}:${DATABASE_PASSWORD:-password}@${DATABASE_HOST:-database}/${DATABASE_NAME:-dbname}
+      RABBITMQ_TRANSPORT_DSN: amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASS:-guest}@rabbitmq:${RABBITMQ_PORT:-5672}/%2f
+      XDEBUG_MODE: ${XDEBUG_MODE:-debug}
+      CORS_ALLOW_ORIGIN: ${CORS_ALLOW_ORIGIN:-'^https?://(localhost|127\.0\.0\.1)(:[0-9]+)?$'}
+      JWT_PASSPHRASE: ${JWT_PASSPHRASE:-12345678}
+    ports:
+      - ${BACKEND_EXTERNAL_PORT:-8000:8000}
+    depends_on:
+      - database
+      - rabbitmq
+      - redis
+    networks:
+      - app_net
+
+  database:
+    image: mysql:8.0
+    container_name: database
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DATABASE_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${DATABASE_NAME:-dbname}
+      MYSQL_USER: ${DATABASE_USER:-user}
+      MYSQL_PASSWORD: ${DATABASE_PASSWORD:-password}
+    ports:
+      - ${DATABASE_EXTERNAL_PORT:-3306:3306}
+    volumes:
+      - ./docker/mysql:/var/lib/mysql
+    networks:
+      - app_net
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS:-guest}
+    ports:
+      - ${RABBITMQ_EXTERNAL_PORT:-5672:5672}
+      - ${RABBITMQ_MANAGEMENT_EXTERNAL_PORT:-15672:15672}
+    networks:
+      - app_net
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - ${REDIS_EXTERNAL_PORT:-6379:6379}
+    networks:
+      - app_net
+
+  mailpit:
+    image: axllent/mailpit
+    container_name: mailpit
+    restart: always
+    ports:
+      - ${MAILPIT_SMTP_EXTERNAL_PORT:-1025:1025}
+      - ${MAILPIT_MANAGEMENT_EXTERNAL_PORT:-8025:8025}
+    networks:
+      - app_net
+
+networks:
+  app_net:
+    driver: bridge
