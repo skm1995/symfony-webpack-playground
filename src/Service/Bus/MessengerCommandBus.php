@@ -4,17 +4,15 @@ namespace App\Service\Bus;
 
 use App\Command\CommandInterface;
 use App\CommandResponse\CommandResponseInterface;
+use App\Enum\BusTransportNameEnum;
 use App\Exception\CommandNotRegisteredException;
 use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Symfony\Component\Messenger\Exception\NoHandlerForMessageException;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Messenger\Stamp\StampInterface;
+use Symfony\Component\Messenger\Stamp\TransportNamesStamp;
 
-/**
- * @template T of CommandResponseInterface
- * @implements CommandBusInterface<T>
- */
 class MessengerCommandBus implements CommandBusInterface
 {
     use MessageBusExceptionTrait;
@@ -25,11 +23,11 @@ class MessengerCommandBus implements CommandBusInterface
 
     /**
      * @param array<StampInterface> $stamps
-     * @return CommandResponseInterface<T>
      */
     public function dispatchSync(CommandInterface $command, array $stamps = []): CommandResponseInterface
     {
         try {
+            $stamps[] = new TransportNamesStamp([BusTransportNameEnum::SYNC->value]);
             $envelope = $this->commandBus->dispatch($command, $stamps);
 
             /** @var HandledStamp $stamp */
@@ -58,6 +56,7 @@ class MessengerCommandBus implements CommandBusInterface
     public function dispatchAsync(CommandInterface $command, array $stamps = []): void
     {
         try {
+            $stamps[] = new TransportNamesStamp([BusTransportNameEnum::ASYNC->value]);
             $this->commandBus->dispatch($command, $stamps);
         } catch (NoHandlerForMessageException $exception) {
             throw new CommandNotRegisteredException($command, $exception);

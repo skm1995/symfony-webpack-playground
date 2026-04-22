@@ -18,9 +18,6 @@ readonly class CreateUserCommandHandler implements CommandHandlerInterface
     ) {
     }
 
-    /**
-     * @return CommandResponseInterface<User>
-     */
     public function __invoke(CreateUserCommand $command): CommandResponseInterface
     {
         $user = new User();
